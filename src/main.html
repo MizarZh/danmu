@@ -13,15 +13,33 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            --font-size: 35px;
         }
         body div {
-            height: 50%;
+            height: 70%;
             width: 50%;
+            background-color: yellow;
+        }
+        #danmu .rows {
+            background-color: aqua;
+            width: 100%;
+            margin: 0;
+            height: var(--font-size);
+            border-bottom: 1px black solid;
+        }
+
+        #danmu .rowitems {
+            font-size: var(--font-size);
+            color: black;
         }
     </style>
 </head>
 <body>
-    <div id="danmu"></div>
+    <div id="danmu">
+        <div class="rows"></div>
+        <div class="rows"></div>
+        <div class="rows"></div>
+    </div>
     <script src="jquery.js"></script>
     <script src="main.js"></script>
 </body>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <style>
+        .test {
+            color: black;
+            font-size: 50px;
+            width: auto;
+            display: inline-block;
+        }
+        .absolute {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test">
+        test
+    </div>
+    <div class="absolute">
+        data
+    </div>
+    <script src="jquery.js"></script>
+    <script>
+        var div = document.querySelector('.test');
+        var message = document.querySelector('.absolute');
+        start = Date.now();
+        duration = 3000;
+        $('.test').animate({
+            marginLeft: "1000px"
+        },3000);
+        setInterval(function(){
+            message.innerHTML = Date.now() - start;
+        },100);
+    </script>
+</body>
+</html>
