@@ -16,9 +16,10 @@
             --font-size: 35px;
         }
         body div {
-            height: 70%;
-            width: 50%;
+            height: 500px;
+            width: 1000px;
             background-color: yellow;
+            z-index: -30;
         }
         #danmu .rows {
             background-color: aqua;
@@ -26,17 +27,29 @@
             margin: 0;
             height: var(--font-size);
             border-bottom: 1px black solid;
+            z-index: -20;
+            position: relative;
         }
 
         #danmu .rowitems {
+            background-color: transparent;
             font-size: var(--font-size);
             color: black;
+            z-index: -10;
+            display: inline-block;
+            height: var(--font-size);
+            width: auto;
+            position: absolute;
         }
     </style>
 </head>
 <body>
     <div id="danmu">
-        <div class="rows"></div>
+        <div class="rows">
+            <div class="rowitems">
+                test
+            </div>
+        </div>
         <div class="rows"></div>
         <div class="rows"></div>
     </div>
