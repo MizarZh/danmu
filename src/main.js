@@ -53,39 +53,76 @@
 
 var div = document.querySelector('#danmu');
 var tracks = document.querySelectorAll('.rows'); // 后期可能需要用js生成
-var maxRow = 4; // 最大行数为4
+var defaultFontSize = 30;
 function json2Danmu(){
 
 }
 
-function Danmu(text, start, duration = 3, color = '#fff', fontSize = 16){
+// 弹幕属性
+// text 文字，start 开始时间，duration 运动速度（speed?？）
+// color 字体颜色，fontFamily 字体，textShadow 字体阴影
+// 待解决：fontSize 字体大小，弹幕轨道问题（使用canvas？），弹幕类型（中间悬空）
+
+function Danmu({text, start, duration = 3000, 
+        color = '#fff', fontFamily = 'sans-serif', textShadow}){
     if(text === undefined && start === undefined && duration === undefined) 
     {throw new Error('first three arguments are nessisary');}
     this.text = text;
     this.start = start;
     this.duration = duration;
     this.color = color;
-    this.fontSize = fontSize;
+    // getOwnPropertyDescipter?
+    this.fontFamily = fontFamily;
+    this.textShadow = textShadow;
 }
 
-
+// div窗口属性
+// element DOM元素，DanmuArr 这个元素中的弹幕组
+// width height left top 位置、大小属性
+// rows 行数
+// opacity 透明度
+// 待添加：显示区域，屏蔽字幕，变换的div需要重新分配rows
+function Div({element = document.querySelector('#danmu'), DanmuArr,
+        opacity = 1}){
+    this.element = element;
+    this.width = element.clientWidth;
+    this.height = element.clientHeight;
+    this.left = element.clientLeft;
+    this.top = element.clientTop;
+    
+    this.rows = Math.floor(height / defaultFontSize);
+    this.DanmuArr = DanmuArr.sort((a,b) => a.start - b.start); // 按时间排序弹幕组
+    
+    this.opacity = opacity;
+}
 
 function renderByTime(sortedDanmuArray, rows){
     // sortedDanmuArray为按照时间线排序好的Danmu类数组
     var timeline = 0,   // 时间线
-    currentRow = 1, // 目前弹幕所在行数
     index = 0;      // sortedDanmuArray运行到的位置
     timelineStart = Date.now()
 
     var init = function(newtimeline){
         // 清楚所有弹幕元素并初始化参数
-        for(let rows of document.querySelectorAll('.rows')) rows.innerHTML = '';
+        for(let rows of tracks) rows.innerHTML = '';
         timeline = newtimeline,currentRow = 1,index = 0,timelineStart = Date.now();
 
         // 二分查找起始index
-
-
-        // 
+        var ulim = sortedDanmuArray.length - 1, dlim = 0, mid;
+        while(ulim > dlim){
+            mid = Math.ceil((ulim + dlim) / 2); //向上取整，使index取值符合timeline之后
+            if(sortedDanmuArray[mid].start < timeline){
+                dlim = mid;
+            }else if(sortedDanmuArray[mid].start > timeline){
+                ulim = mid;
+            }else { 
+                // 相等时，向前查找符合条件的数
+                while(sortedDanmuArray[--mid] === timeline){}
+                ++mid;
+                break;
+            }
+        }
+        index = mid;
     }
 
     var renderSingleDanmu = function(DanmuItem, row){
@@ -98,7 +135,7 @@ function renderByTime(sortedDanmuArray, rows){
 
         // 确定位置
         DanmuContainer.style.left = div.clientLeft + div.clientWidth + 'px';
-        //速度值仍不准
+        // 速度值仍不准
         var speed = (div.clientLeft + div.clientWidth - div.clientLeft - DanmuContainer.clientWidth)
             / DamuItem.duration;
         row.appendChild(DanmuContainer);
@@ -108,7 +145,7 @@ function renderByTime(sortedDanmuArray, rows){
             left = parseFloat(DanmuContainer.style.left)
             if(left < -DanmuContainer.clientWidth) {
                 clearInterval(runId); 
-                div.querySelectorAll('.rows')[row-1].remove(DanmuContainer)
+                row.remove(DanmuContainer)
             }
             DanmuContainer.style.left = left - speed + 'px';
         },1)
