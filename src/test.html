@@ -26,15 +26,17 @@
     <div class="absolute">
         data
     </div>
-    <script src="jquery.js"></script>
     <script>
         var div = document.querySelector('.test');
         var message = document.querySelector('.absolute');
         start = Date.now();
         duration = 3000;
-        $('.test').animate({
-            marginLeft: "1000px"
-        },3000);
+        dt = 1;
+        div.style.marginLeft = '0px';
+        var id = setInterval(function(){
+            if(Date.now() - start > duration) {clearInterval(id); }
+            div.style.marginLeft = parseInt(div.style.marginLeft) + 1 + 'px';
+        },dt)
         setInterval(function(){
             message.innerHTML = Date.now() - start;
         },100);

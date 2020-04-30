@@ -29,17 +29,21 @@
             border-bottom: 1px black solid;
             z-index: -20;
             position: relative;
+            overflow: hidden;
         }
 
         #danmu .rowitems {
             background-color: transparent;
             font-size: var(--font-size);
-            color: black;
+            color: white;
             z-index: -10;
             display: inline-block;
             height: var(--font-size);
             width: auto;
             position: absolute;
+            border: 1px solid black;
+            text-shadow: 0px 0px 3px #555;
+            opacity: 100%;
         }
     </style>
 </head>
@@ -50,7 +54,9 @@
                 test
             </div>
         </div>
-        <div class="rows"></div>
+        <div class="rows">
+
+        </div>
         <div class="rows"></div>
     </div>
     <script src="jquery.js"></script>
