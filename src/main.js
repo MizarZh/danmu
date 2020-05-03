@@ -3,6 +3,7 @@
  * 总设定：时间使用单位毫秒
  *
  */
+var testblock = document.querySelector('#test');
 var defaultFontSize = 16;
 var tracks = document.querySelectorAll('.rows'); // 后期可能需要用js生成
 /* 单个弹幕属性
@@ -16,8 +17,8 @@ function Danmu(
   start,
   duration = 3000,
   color = '#fff',
-  fontFamily = 'serif',
- ) {
+  fontFamily = 'serif'
+) {
   if (text === undefined && start === undefined && duration === undefined) {
     throw new Error('first three arguments are nessisary');
   }
@@ -39,7 +40,7 @@ function Danmu(
 function Div(
   element = document.querySelector('#danmu'),
   DanmuArr,
-  opacity = 1,
+  opacity = 1
 ) {
   if (element === undefined) {
     throw new Error('div do not exist');
@@ -59,7 +60,6 @@ function Div(
 
   this.timeline = new Timeline(parseInt(this.DanmuArr.slice(-1)[0].start));
 
-
   //var tracks = document.querySelectorAll('.rows'); // 后期可能需要用js生成
   this.render = function () {
     // 初始化：
@@ -69,7 +69,7 @@ function Div(
     // 二分查找起始index
     var ulim = DanmuArr.length - 1,
       dlim = 0,
-      mid;
+      mid = (ulim + dlim) / 2;
     while (ulim > dlim) {
       mid = Math.ceil((ulim + dlim) / 2); //向上取整，使index取值符合timeline之后
       if (DanmuArr[mid].start < this.timeline.current) {
@@ -78,40 +78,43 @@ function Div(
         ulim = mid;
       } else {
         // 相等时，向前查找符合条件的数
-        while (DanmuArr[--mid] === this.timeline.current) {}
-        ++mid;
+        while (mid > 0 && DanmuArr[mid - 1].start === this.timeline.current) {
+          --mid;
+        }
         break;
       }
     }
     index = mid;
-    console.log('index: ' + index);
+    // console.log(index);
+    // 开启时间线
     this.timeline.start();
     // 放出单个弹幕
     // DanmuItem:Danmu类 row:运行轨道的DOM元素
-    var renderSingleDanmu = function (DanmuItem, row) {
+    var renderSingleDanmu = (DanmuItem, row) => {
       // 弹幕属性设置
       var DanmuContainer = document.createElement('div');
       DanmuContainer.innerText = DanmuItem.text;
       DanmuContainer.classList.add('rowitems'); // 使用rowitems规范化
       DanmuContainer.style = `color: ${DanmuItem.color}; font-family: ${DanmuItem.fontFamily};`; //其他属性
       // 确定位置
-      DanmuContainer.style.left = div.clientLeft + div.clientWidth + 'px';
+      DanmuContainer.style.left = this.left + this.width + 'px';
       // 速度值仍不准
       var speed =
-        (div.clientLeft +
-          div.clientWidth -
-          div.clientLeft -
-          DanmuContainer.clientWidth) /
-        DanmuItem.duration;
+        (this.width + DanmuContainer.clientWidth) / DanmuItem.duration;
       row.appendChild(DanmuContainer);
-
+      //  console.log('speed ' + speed + ' dis ' + (this.width + DanmuContainer.clientWidth));
       // 运动
+
+      //test
+      //var begin = Date.now();
       var runId = setInterval(function () {
         left = parseFloat(DanmuContainer.style.left);
         if (left < -DanmuContainer.clientWidth) {
           clearInterval(runId);
           row.removeChild(DanmuContainer);
         }
+        
+        //testblock.innerHTML = left + ' ' + (Date.now() - begin);
         DanmuContainer.style.left = left - speed + 'px';
       }, 1);
     };
@@ -119,24 +122,26 @@ function Div(
     // 异步运行的确认
     // 这里的闭包可能会很影响效率，设法提高
     var timelineId = setInterval(() => {
-        var danmuPerRow = [];
-        for (let i of tracks) {
-            danmuPerRow[danmuPerRow.length] = i.childElementCount; // 每行弹幕的个数
-        }
-        while (index < DanmuArr.length && this.timeline.current >= DanmuArr[index].start) {
-          let smallestDanmuNumberIndex = danmuPerRow.indexOf(Math.min(...danmuPerRow));
-          renderSingleDanmu(
-            DanmuArr[index],
-            tracks[smallestDanmuNumberIndex]
-          ); // 返回元素最少的
-          //console.log(danmuPerRow);
-          ++index;
-          ++danmuPerRow[smallestDanmuNumberIndex];
-        }
-        if (index >= DanmuArr.length) 
+      var danmuPerRow = [];
+      for (let i of tracks) {
+        danmuPerRow[danmuPerRow.length] = i.childElementCount; // 每行弹幕的个数
+      }
+      while (
+        index < DanmuArr.length &&
+        this.timeline.current >= DanmuArr[index].start
+      ) {
+        let smallestDanmuNumberIndex = danmuPerRow.indexOf(
+          Math.min(...danmuPerRow)
+        );
+        renderSingleDanmu(DanmuArr[index], tracks[smallestDanmuNumberIndex]); // 返回元素最少的
+        ++index;
+        ++danmuPerRow[smallestDanmuNumberIndex];
+      }
+      if (index >= DanmuArr.length) {
         clearInterval(timelineId);
         this.timeline.end();
-      }, 1);
+      }
+    }, 1);
   };
 }
 
